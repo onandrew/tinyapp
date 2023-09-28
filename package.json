@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/onandrew/tinyapp/issues"
   },
-  "homepage": "https://github.com/onandrew/tinyapp#readme"
+  "homepage": "https://github.com/onandrew/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
