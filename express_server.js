@@ -35,12 +35,12 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies['username']}
+  const templateVars = { username: req.cookies['username']}
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: req.params.longURL};
+  const templateVars = { id: req.params.id, longURL: req.params.longURL, username: req.cookies['username']};
   res.render("urls_show", templateVars);
 });
 
