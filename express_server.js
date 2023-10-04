@@ -45,6 +45,15 @@ const addNewUser = (email, password) => {
   return id;
 };
 
+const checkIfUserExists = (email) => {
+  for (let x in users) {
+    if (users[x][email] === email) {
+      return false;
+    }
+  }
+  return true;
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -115,6 +124,13 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   const {email, password} = req.body;
+  if (email === '') {
+    res.status(400).send('Email cannot be blank, please enter in a valid email.');
+  } else if (password === '') {
+    res.status(400).send('Password cannot be blank, please enter in a valid password.');
+  } else if (!checkIfUserExists(email)) {
+    res.status(400).send('User already exists, please login.');
+  }
   let user_id = addNewUser(email, password);
   res.cookie('user_id', user_id);
   res.redirect('/urls');
