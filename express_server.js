@@ -1,10 +1,12 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookie = require('cookie-parser')
+const cookie = require('cookie-parser');
+const bodyParser = require('body-parser');
 app.use(express.urlencoded({ extended: true }));
-app.set("view engine", "ejs")
+app.set("view engine", "ejs");
 app.use(cookie());
+app.use(bodyParser.urlencoded({extended: false}));
 
 function generateRandomString() {
   let randomString = "";
@@ -87,6 +89,11 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+app.get("/register", (req, res) => {
+  let templateVars = {username: req.cookies['username']};
+  res.render("urls_registration", templateVars);
+  res.redirect("/urls");
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
