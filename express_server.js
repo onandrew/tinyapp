@@ -62,6 +62,33 @@ const getCurrentUser = (cookie) => {
   };
 };
 
+const verifyEmail = (email, database) => {
+  for (let x in database) {
+    if (email === database[x].email) {
+      return email;
+    }
+  }
+  return undefined;
+};
+
+const verifyPassword = (email, database) => {
+  for (let x in database) {
+    if (email === database[x].email) {
+      return database[x].password;
+    }
+  }
+  return undefined;
+}
+
+const verifyUserID = (email, users) => {
+  for (let x in users) {
+    if (email === users[x].email) {
+      return users[x].id ;
+    }
+  }
+  return undefined;
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -116,11 +143,23 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if (users[req.body.user_id]) {
-    const user_id = req.body.user_id;
-    res.cookie('user_id', user_id);
+  const { email, password } = req.body;
+  const user = getCurrentUser(email);
+  const currentEmail = verifyEmail(email, users);
+  const currentPassword = verifyPassword(email, users);
+  if (email === currentEmail) {
+    if (password === currentPassword) {
+      const currentUserID = verifyUserID(email,users)
+      res.cookie("user_id", userID);
+      res.redirect("/urls");
+    }
+    else {
+      res.status(403).send('Incorrect password. Please re-enter the correct password.');
+    }
   }
-  res.redirect('/urls');
+  else {
+    res.status(403).send('Invalid email entered. Please enter in a valid email or register a new email.');
+  }  
 });
 
 app.post("/logout", (req, res) => {
