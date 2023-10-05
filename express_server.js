@@ -54,6 +54,14 @@ const checkIfUserExists = (email) => {
   return true;
 };
 
+const getCurrentUser = (cookie) => {
+  for (let x in users) {
+    if (cookie === x) {
+      return users[x]['email'];
+    };
+  };
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -64,11 +72,15 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user_id: req.cookies['user_id'] };
+  const templateVars = { urls: urlDatabase, current_user: getCurrentUser(req.cookies['user_id']) };
   res.render("urls_index", templateVars);
 });
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user_id: req.cookies['user_id']}
+  const current_user = getCurrentUser(req.cookies['user_id']);
+  if (!current_user) {
+    res.redirect('/login');
+  }
+  let templateVars = { current_user: current_user }
   res.render("urls_new", templateVars);
 });
 
@@ -112,12 +124,12 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
+  res.clearCookie('current_user');
   res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {
-  let templateVars = {user_id: req.cookies['user_id']};
+  let templateVars = {current_user: getCurrentUser(req.cookies['user_id'])};
   res.render("urls_registration", templateVars);
   res.redirect("/urls");
 })
@@ -134,6 +146,11 @@ app.post("/register", (req, res) => {
   let user_id = addNewUser(email, password);
   res.cookie('user_id', user_id);
   res.redirect('/urls');
+});
+
+app.get("/login", (req, res) => {
+  let templateVars = {current_user: null};
+  res.render("urls_login", templateVars);
 });
 
 app.listen(PORT, () => {
