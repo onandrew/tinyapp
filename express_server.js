@@ -1,12 +1,11 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8081; // default port 8080
 const cookie = require('cookie-parser');
 const bodyParser = require('body-parser');
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(cookie());
-//app.use(bodyParser.urlencoded({extended: false}));
 
 function generateRandomString() {
   let randomString = "";
@@ -45,16 +44,6 @@ const addNewUser = (email, password, database) => {
   return id;
 };
 
-const urlsForUser = (id) => {
-  let userUrls = {};
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userUrls[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return userUrls;
-};
-
 const checkIfUserExists = (email) => {
   for (let x in users) {
     if (users[x][email] === email) {
@@ -73,40 +62,6 @@ const getUserByEmail = (email, database) => {
   return undefined;
 };
 
-const verifyEmail = (email, database) => {
-  for (let x in database) {
-    if (email === database[x].email) {
-      return email;
-    }
-  }
-  return undefined;
-};
-
-const verifyPassword = (email, database) => {
-  for (let x in database) {
-    if (email === database[x].email) {
-      return database[x].password;
-    }
-  }
-  return undefined;
-}
-
-const verifyUserID = (email, database) => {
-  for (let x in database) {
-    if (email === database[x].email) {
-      return database[x].id ;
-    }
-  }
-  return undefined;
-};
-
-const retrieveUserInfo = (email, database) => {
-  for (let x in database) {
-    if (database[x]['email'] === email) {
-      return database[x];
-    }
-}
-};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -146,7 +101,20 @@ app.get('/u/:shortURL', (req, res) => {
   }
 });
 
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    user: req.cookies["user_id"]
+  };
+  res.render("urls_show", templateVars);
+});
 
+app.post('/urls/:id', (req, res) => {
+  let longURL = req.body.longURL
+  urlDatabase[req.params.id] = longURL;
+  res.redirect('/urls');
+})
 
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.id;
@@ -173,8 +141,8 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
 const email = req.body.email;
- const password = req.body.password;
- const user = getUserByEmail(email, users);
+const password = req.body.password;
+const user = getUserByEmail(email, users);
 if (user) {
   if (password === user.password) {
     res.cookie("user_id", user.id);
