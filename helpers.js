@@ -15,7 +15,7 @@ const getUserByEmail = (email, database) => {
 };
 
 //generate randomString for unique userID and urls
-function generateRandomString() {
+const generateRandomString = function() {
   let randomString = "";
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let x = 0; x < 6; x++) {
