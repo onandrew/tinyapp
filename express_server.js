@@ -168,7 +168,7 @@ app.post("/register", (req, res) => {
   }
     else  if (email === '') {
     res.status(400).send('Email cannot be blank, please enter in a valid email.');
-  } else if (hashedPassword === '') {
+  } else if (password === '') {
     res.status(400).send('Password cannot be blank, please enter in a valid password.');
   } 
 });
