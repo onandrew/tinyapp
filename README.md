@@ -10,7 +10,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["Home page"](![Alt text](image.png))
+![](![image](https://github.com/onandrew/tinyapp/assets/137456118/33afde0a-820c-4a8a-a26c-4979801eac1c))
 
 ## Getting Started
 
