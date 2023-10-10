@@ -147,8 +147,7 @@ app.post("/login", (req, res) => {
 
 //when user logs out
 app.post("/logout", (req, res) => {
-  req.session['userID'] = null;
-  res.clearCookie('session.sig');
+  req.session = null;
   res.clearCookie('session');
   res.redirect("/login");
 });
