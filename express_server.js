@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const PORT = 8081; // default port 8080
+const PORT = 8082; // default port 8080
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
 app.use(express.urlencoded({ extended: true }));
@@ -25,19 +25,33 @@ app.get('/', (req, res) => {
 
 app.get("/urls", (req, res) => {
   const user = req.session['userID'];
+  const usersUrls = urlsForUser(user, urlDatabase);
+  const templateVars = {urls: usersUrls, user: users[user]};
   if (!user) {
     res.status(404).send('Please login or create an account first');
   }
-  const templateVars = {urls: urlsForUser(req.session.userID, urlDatabase), user: users[req.session["userID"]]};
   res.render('urls_index', templateVars);
 });
 
+app.get('/u/:shortURL', (req, res) => {
+  if (urlDatabase[req.params.shortURL]) {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+    return;
+  } else {
+    res.status(404).send('This URL does not exist');
+  }
+});
+
 app.post('/urls', (req, res) => {
-  const longURL = req.body.longURL;
-  const userID = req.session['userID'];
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = {longURL, userID};
-  res.redirect(`/urls/${shortURL}`);
+  if (req.session.userID) {
+    const longURL = req.body.longURL;
+    const userID = req.session['userID'];
+    const shortURL = generateRandomString();
+    urlDatabase[shortURL] = {longURL, userID};
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.status(404).send('Please login or create an account first');
+  }
 });
 
 //for adding new urls
@@ -50,14 +64,6 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  if (longURL) {
-    res.redirect(longURL);
-  } else {
-    res.statusCode(404).send('This URL does not exist');
-  }
-});
 
 //for editing and showing new urls
 app.get("/urls/:shortURL", (req, res) => {
@@ -72,7 +78,8 @@ app.get("/urls/:shortURL", (req, res) => {
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
-      user: users[req.session["userID"]]
+      user: users[req.session["userID"]],
+      urlsForUser: urlDatabase[req.session["userID"], urlDatabase]
     };
     res.render("urls_show", templateVars);
   } else {
