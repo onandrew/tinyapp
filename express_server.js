@@ -3,7 +3,6 @@ const app = express();
 const PORT = 8081; // default port 8080
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
-const bodyParser = require('body-parser');
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(
@@ -15,7 +14,20 @@ app.use(
 
 const {users, urlDatabase, getUserByEmail, generateRandomString, urlsForUser} = require('./helpers');
 
+app.get('/', (req, res) => {
+  const user = req.session['userID'];
+  if (!user) {
+    res.redirect('/login');
+  } else {
+    res.redirect('/urls');
+  }
+});
+
 app.get("/urls", (req, res) => {
+  const user = req.session['userID'];
+  if (!user) {
+    res.status(404).send('Please login or create an account first');
+  }
   const templateVars = {urls: urlsForUser(req.session.userID, urlDatabase), user: users[req.session["userID"]]};
   res.render('urls_index', templateVars);
 });
@@ -136,6 +148,8 @@ app.post("/login", (req, res) => {
 //when user logs out
 app.post("/logout", (req, res) => {
   req.session['userID'] = null;
+  res.clearCookie('session.sig');
+  res.clearCookie('session');
   res.redirect("/login");
 });
 
